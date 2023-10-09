@@ -24,9 +24,9 @@ class PlotAgents:
         plt.pause(1)
 
 def clear_existing_model():
-    if os.path.exists("./models"):
-        shutil.rmtree("./models")
-    os.makedirs("./models")
+    if os.path.exists("./info_models"):
+        shutil.rmtree("./info_models")
+    os.makedirs("./info_models")
     
 def play_step(idx, socket):
     act = ACTIONS[idx]

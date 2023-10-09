@@ -57,13 +57,27 @@ class Agent:
         self.state_num += 1
         return action
 
-    def load_model(self):
+    def load_model(self, state):
         if os.path.exists(f"./info_models/agent{self.agent_n}/model.h5"):
             try:
+                state_tensor = tf.convert_to_tensor(state)
+                state_tensor = tf.expand_dims(state_tensor, 0)
+                self.model(state_tensor, training=False)
                 self.model.load_weights(f"./info_models/agent{self.agent_n}/model.h5")
                 self.trainer.load_model(self.model)
-            except:
+                self.load_info()
+                print(f"Agent{self.agent_n} loaded pretrained model successfully")
+            except Exception as e:
+                print(e)
                 print(f"Agent{self.agent_n} Cant load pretrained model")
         else:
             print(f"Agent{self.agent_n} Model Doesn't exist")
+
+    def load_info(self):
+        if os.path.exists("./info_models/info.txt"):
+            with open("./info_models/info.txt", "r") as f:
+                lines = f.readlines()
+                self.epsilon = float(lines[0].replace('\n', '').split(' ')[-1])
+                self.n_games = int(lines[1].replace('\n', '').split(' ')[-1])
+                self.state_num = int(lines[-1].split(' ')[-1])
 

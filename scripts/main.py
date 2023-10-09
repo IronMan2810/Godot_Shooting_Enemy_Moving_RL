@@ -47,10 +47,10 @@ def train(
     TCPClientSocket.sendall(starting)
     state, _, _ = agent.get_state(TCPClientSocket)
     while True:
-        if load_agent_model[agent_n - 1]:
-            agent.load_model()
-            load_agent_model[agent_n - 1] = False
         final_move = agent.get_action(state)
+        if load_agent_model[agent_n - 1]:
+            agent.load_model(state)
+            load_agent_model[agent_n - 1] = False
         play_step(final_move, TCPClientSocket)
         state_new, reward, done = agent.get_state(TCPClientSocket)
         epoch_reward += reward
@@ -72,6 +72,7 @@ def train(
                 f.write(
                     f"epsilon: {agent.epsilon}\nepoch: {agent.n_games}\nstate_num: {agent.state_num}"
                 )
+            print(f"epsilon: {agent.epsilon}\nepoch: {agent.n_games}\nstate_num: {agent.state_num}")
         if done:
             agent.n_games += 1
             epoch_reward_list.append(epoch_reward)

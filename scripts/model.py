@@ -18,7 +18,7 @@ class Linear_QNet(tf.keras.Model):
         return out
 
     def save(self, file_name="model.h5"):  # saving the model
-        model_folder_path = f"./models/agent{self.agent_n}"
+        model_folder_path = f"./info_models/agent{self.agent_n}"
         if not os.path.exists(model_folder_path):
             os.makedirs(model_folder_path)
         file_name = os.path.join(model_folder_path, file_name)

@@ -1,6 +1,8 @@
 # Python-specific ignore patterns
 __pycache__/
+*/__pycache__/
 *.pyc
+*/*/.pyc
 /.venv/
 token.txt
 .godot
