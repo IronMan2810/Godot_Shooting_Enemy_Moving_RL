@@ -58,12 +58,12 @@ class Agent:
         return action
 
     def load_model(self, state):
-        if os.path.exists(f"./info_models/agent{self.agent_n}/model.h5"):
+        if os.path.exists(f"./info_models/agent{self.agent_n}/pretrained_model.h5"):
             try:
                 state_tensor = tf.convert_to_tensor(state)
                 state_tensor = tf.expand_dims(state_tensor, 0)
                 self.model(state_tensor, training=False)
-                self.model.load_weights(f"./info_models/agent{self.agent_n}/model.h5")
+                self.model.load_weights(f"./info_models/agent{self.agent_n}/pretrained_model.h5")
                 self.trainer.load_model(self.model)
                 self.load_info()
                 print(f"Agent{self.agent_n} loaded pretrained model successfully")
