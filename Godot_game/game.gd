@@ -8,7 +8,6 @@ func _ready():
 	var s = get_tree().get_nodes_in_group("Players").size()
 	train_list.resize(s)
 	train_list.fill(true)
-	var all_false = false
 	for node in get_tree().get_nodes_in_group("Players"):
 		players.append(node)
 	if GlobalVars.first_time:

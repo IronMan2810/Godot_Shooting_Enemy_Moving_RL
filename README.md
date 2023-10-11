@@ -18,7 +18,8 @@ poetry install
 ## Step 3: Run Game
 Now you can start the training code:
 ```bash
-sh Godot_Shooting_RL.sh
+sh Shooting_Enemy_Moving_RL.sh
 ```
 Press `Esc` to quit the game. \
+If you want to train it from zero set clear_model to True and epsilon in agent.py to 1 \
 That's it! You're all set to run your Godot Shooting Enemy Moving reinforcement learning training. Enjoy!

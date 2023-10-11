@@ -6,11 +6,9 @@ class QTrainer:
         self.model = None
         self.model_target = None
         self.load_model(model)
-        self.lr = lr
         self.gamma = gamma
         self.optimizer = tf.keras.optimizers.Adam(learning_rate=lr, clipnorm=1.0) #optimizer
         self.criterion = tf.keras.losses.Huber() #loss function
-        self.lr_count = 0
 
     def train_step(self, state_sample, action_sample, rewards_sample, state_next_sample, done_sample): #trainer
         future_rewards = self.model_target.predict(state_next_sample, verbose=False) #using the Q=model predict equation above

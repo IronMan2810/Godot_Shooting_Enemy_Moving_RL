@@ -6,8 +6,8 @@ class Linear_QNet(tf.keras.Model):
         self, hidden_size, output_size, agent_n
     ):  # building the input, hidden and output layer
         super().__init__()
-        self.linear1 = tf.keras.layers.Dense(hidden_size, activation="relu")
-        self.linear2 = tf.keras.layers.Dense(hidden_size, activation="relu")
+        self.linear1 = tf.keras.layers.Dense(hidden_size, activation="tanh")
+        self.linear2 = tf.keras.layers.Dense(hidden_size, activation="tanh")
         self.linear3 = tf.keras.layers.Dense(output_size, activation="linear")
         self.agent_n = agent_n
 

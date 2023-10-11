@@ -12,7 +12,7 @@ import json
 class Agent:
     def __init__(self, agent_n):
         self.agent_n = agent_n
-        self.epsilon = 1.0 
+        self.epsilon = 0
         self.n_games = 0
         self.state_num = 0
         self.memory = deque(maxlen=MAX_MEMORY)
@@ -77,7 +77,7 @@ class Agent:
         if os.path.exists("./info_models/info.txt"):
             with open("./info_models/info.txt", "r") as f:
                 lines = f.readlines()
-                self.epsilon = float(lines[0].replace('\n', '').split(' ')[-1])
+                # self.epsilon = float(lines[0].replace('\n', '').split(' ')[-1])
                 self.n_games = int(lines[1].replace('\n', '').split(' ')[-1])
                 self.state_num = int(lines[-1].split(' ')[-1])
 

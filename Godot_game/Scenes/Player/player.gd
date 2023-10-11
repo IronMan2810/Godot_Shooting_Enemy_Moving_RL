@@ -107,10 +107,10 @@ func shoot():
 		save_state(reward, done)
 		return
 	var bulletInst = _bullet_scene.instantiate() as Node3D
-	bulletInst.set_as_top_level(true)
-	get_parent().add_child(bulletInst)
-	bulletInst.global_transform.origin = gunRay.get_collision_point() as Vector3
-	bulletInst.look_at((gunRay.get_collision_point()+gunRay.get_collision_normal()),Vector3.BACK)
+#	bulletInst.set_as_top_level(true)
+#	get_parent().add_child(bulletInst)
+#	bulletInst.global_transform.origin = gunRay.get_collision_point() as Vector3
+#	bulletInst.look_at((gunRay.get_collision_point()+gunRay.get_collision_normal()),Vector3.BACK)
 	var collided_object = gunRay.get_collider()
 	if collided_object and collided_object.name == "Enemy":
 #			collided_object.emit_signal("bullet_collision")

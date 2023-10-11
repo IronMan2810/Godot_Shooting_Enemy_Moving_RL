@@ -9,7 +9,7 @@ var first_time = true
 func _ready():
 	var doFileExists = FileAccess.file_exists("./info_models/info.txt")
 	if doFileExists:
-		var file = FileAccess.open("./info_models/info.txt", FileAccess.READ)
+		var file = FileAccess.open("./info_models/age/info.txt", FileAccess.READ)
 		var content = file.get_as_text()
 		var lines = content.split('\n')
 		epoch = int(lines[1].split(' ')[-1])

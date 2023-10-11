@@ -8,11 +8,12 @@ from multiprocessing import Process, shared_memory, Value
 import shutil
 import numpy as np
 import glob
-from collections import deque
 from agent import Agent
 from sys import argv
 import socket
 import time
+import signal
+
 
 epsilon_min = 0.1  # Minimum epsilon greedy parameter
 epsilon_max = 1.0  # Maximum epsilon greedy parameter
@@ -28,25 +29,18 @@ update_target_network = 10_000
 
 
 def train(
-    agent_n,
-    agents_reward,
-    complete,
-    plot_now,
-    load_agent_model,
-    clear_model=True,
+    agent_n, agents_reward, complete, plot_now, load_agent_model, terminate=False
 ):
-    if clear_model:
-        clear_existing_model()
     serverAddressPort = ("127.0.0.1", 4240 + agent_n)
     TCPClientSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM)
     TCPClientSocket.connect(serverAddressPort)
     agent = Agent(agent_n)
     epoch_reward = 0
-    epoch_reward_list = deque(maxlen=100)
+    epoch_reward_list = [0]
     starting = str.encode("starting")
     TCPClientSocket.sendall(starting)
     state, _, _ = agent.get_state(TCPClientSocket)
-    while True:
+    while not terminate.value:
         final_move = agent.get_action(state)
         if load_agent_model[agent_n - 1]:
             agent.load_model(state)
@@ -68,11 +62,21 @@ def train(
             agent.trainer.update_model_target()
             agent.model.save()
             # Log details
-            with open("./info_models/info.txt", "w") as f:
+            with open(f"./info_models/info.txt", "w") as f:
                 f.write(
                     f"epsilon: {agent.epsilon}\nepoch: {agent.n_games}\nstate_num: {agent.state_num}"
                 )
-            print(f"epsilon: {agent.epsilon}\nepoch: {agent.n_games}\nstate_num: {agent.state_num}")
+            print(
+                f"""
+-------- Agent{agent_n} --------
+epsilon: {agent.epsilon}
+epoch: {agent.n_games}
+state_num: {agent.state_num}
+mean_reward: {np.mean(epoch_reward_list)}
+------------------------
+                """
+            )
+            epoch_reward_list = []
         if done:
             agent.n_games += 1
             epoch_reward_list.append(epoch_reward)
@@ -99,11 +103,6 @@ def choose_best_gen(agents_reward, complete, plot_now):
 
 def start_training(agents_num, enable_plot=False, clear_model=True):
     agents_n = list(range(1, agents_num + 1))
-    plotagents = PlotAgents(agents_num)
-    plot_now = Value("b", False)
-    agents_reward = shared_memory.ShareableList([0] * len(agents_n))
-    complete = shared_memory.ShareableList([False] * len(agents_n))
-    load_agent_model = shared_memory.ShareableList([True] * len(agents_n))
     for agent_n in agents_n:
         p = Process(
             target=train,
@@ -113,24 +112,45 @@ def start_training(agents_num, enable_plot=False, clear_model=True):
                 complete,
                 plot_now,
                 load_agent_model,
-                clear_model,
+                terminate,
             ),
         )
+        processes.append(p)
         p.start()
-    while True:
+    if clear_model:
+        clear_existing_model()
+    while not terminate.value:
         if enable_plot and plot_now.value:
             for i in range(len(agents_reward)):
                 plotagents.update_agent(i + 1, agents_reward[i])
             plotagents.plot()
+            plotagents.save_plot()
             plot_now.value = False
-    # complete.shm.close()
-    # complete.shm.unlink()
-    # agents_reward.shm.close()
-    # agents_reward.shm.unlink()
+
+
+def signal_handler(signum, frame):
+    if signum == signal.SIGTERM:
+        terminate.value = True
+        for p in processes:
+            p.join()
+        complete.shm.close()
+        complete.shm.unlink()
+        agents_reward.shm.close()
+        agents_reward.shm.unlink()
+        load_agent_model.shm.close()
+        load_agent_model.shm.unlink()
 
 
 if __name__ == "__main__":
+    processes = []
     agents_num = int(argv[-1])
+    plot_now = Value("b", False)
+    terminate = Value("b", False)
+    agents_reward = shared_memory.ShareableList([0] * agents_num)
+    complete = shared_memory.ShareableList([False] * agents_num)
+    load_agent_model = shared_memory.ShareableList([True] * agents_num)
+    plotagents = PlotAgents(agents_num)
     enable_plot = True
     clear_model = False
+    signal.signal(signal.SIGTERM, signal_handler)
     start_training(agents_num, enable_plot, clear_model)
